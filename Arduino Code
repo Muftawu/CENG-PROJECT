@@ -1,0 +1,78 @@
+#include "LiquidCrystal.h"
+#include "cvzone.h"
+SerialData data;
+int value[2] = {};
+
+LiquidCrystal lcd(7, 8, 9, 10, 11, 12);
+
+int pump=13;
+int LED=4;
+int buz=6;
+int green = 5;
+
+int ledState = LOW; 
+int pumpState = LOW; 
+unsigned long previousMillis = 0; 
+const long interval = 200;  
+unsigned long previousMillis2 = 0; 
+const long interval2 = 30000;  
+
+void setup() 
+{
+  data.begin(9600);
+  lcd.begin(16, 2);
+  pinMode(LED, OUTPUT);
+  pinMode(buz, OUTPUT);
+  pinMode(pump, OUTPUT); 
+}
+
+void loop()
+ {
+  data.Get(value);
+  int val = value[0]; 
+  if(val == 1 )
+      { 
+        lcd.clear();
+        lcd.print(" Fire Detected ");
+   
+        Blink();
+      
+        digitalWrite(pump, HIGH);
+        delay(800);
+      }
+
+   if(val == 0 )
+      {  
+        lcd.clear();
+        lcd.print("Capturing Video...");
+        digitalWrite(LED, LOW); 
+        digitalWrite(buz, LOW); 
+        unsigned long currentMillis2 = millis();
+       if ((unsigned long)(currentMillis2 - previousMillis2) >= interval2)
+          {
+            digitalWrite(pump, LOW);
+            previousMillis2 = currentMillis2;
+           }
+      
+        delay(5);
+      }
+ 
+ }
+
+void Blink()
+ {
+   unsigned long currentMillis = millis();
+   if (currentMillis - previousMillis >= interval)
+     {
+      previousMillis = currentMillis;
+        if (ledState == LOW)
+        {
+          ledState = HIGH;
+         } else
+         {
+          ledState = LOW;
+          }
+       digitalWrite(LED, ledState);
+       digitalWrite(buz, ledState);
+      }
+  }
